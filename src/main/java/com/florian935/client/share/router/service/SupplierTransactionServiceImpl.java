@@ -75,7 +75,9 @@ public class SupplierTransactionServiceImpl implements SupplierTransactionServic
         return SupplierTransactionEvent.builder()
                 .supplierCounter(tupleOfZip.getT2())
                 .username(randomUsername())
-                .price(formatFloatNumberWithCustomDecimal(tupleOfZip.getT1().getTransaction().getPrice(), 4))
+                .price(formatFloatNumberWithCustomDecimal(
+                        tupleOfZip.getT1().getTransaction().getPrice(),
+                        4))
                 .instant(Instant.now())
                 .build();
     }
