@@ -53,7 +53,7 @@ public class SupplierTransactionServiceImpl implements SupplierTransactionServic
     }
 
     private String randomUsername() {
-        String[] userNameList = "Lindsay,Flo,Ludo,Nico,Samy".split(",");
+        final String[] userNameList = "Lindsay,Flo,Ludo,Nico,Samy".split(",");
         return userNameList[new Random().nextInt(userNameList.length)];
     }
 
@@ -81,7 +81,7 @@ public class SupplierTransactionServiceImpl implements SupplierTransactionServic
     }
 
     private float formatFloatNumberWithCustomDecimal(final float numberToFormat, final int numberOfDecimal) {
-        NumberFormat numberFormat = getNumberFormatWithMaxFractionDigitsAndLocal(
+        final NumberFormat numberFormat = getNumberFormatWithMaxFractionDigitsAndLocal(
                 Locale.ENGLISH,
                 numberOfDecimal);
 
@@ -89,7 +89,7 @@ public class SupplierTransactionServiceImpl implements SupplierTransactionServic
     }
 
     private NumberFormat getNumberFormatWithMaxFractionDigitsAndLocal(final Locale locale, final int numberOfDecimal) {
-        NumberFormat numberFormat = NumberFormat.getNumberInstance(locale);
+        final NumberFormat numberFormat = NumberFormat.getNumberInstance(locale);
         numberFormat.setMaximumFractionDigits(numberOfDecimal);
         return numberFormat;
     }
