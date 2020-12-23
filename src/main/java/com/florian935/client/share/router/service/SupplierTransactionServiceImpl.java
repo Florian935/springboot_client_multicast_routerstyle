@@ -9,7 +9,6 @@ import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.util.function.Tuple2;
 
-import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.time.Duration;
 import java.time.Instant;
@@ -21,13 +20,13 @@ import java.util.UUID;
 @Slf4j
 public class SupplierTransactionServiceImpl implements SupplierTransactionService {
 
-    private static final long INTERVAL_IN_MILLIS = 2000;
+    private static final long INTERVAL_IN_MILLIS = 1000;
     private final TransactionService transactionService;
-    private final Flux<Long> intervalTicker;
+    private final Flux<Supplier> intervalSupplierTicker;
 
     public SupplierTransactionServiceImpl(TransactionService transactionService) {
         this.transactionService = transactionService;
-        this.intervalTicker = generateInterval();
+        this.intervalSupplierTicker = generateSupplierIntervalOf(INTERVAL_IN_MILLIS);
     }
 
     @Override
@@ -60,21 +59,29 @@ public class SupplierTransactionServiceImpl implements SupplierTransactionServic
     @Override
     public Flux<SupplierTransactionEvent> transactionSupplierEventStream() {
         return Flux
-                .zip(transactionService.transactionStream(), intervalTicker)
+                .zip(transactionService.transactionStream(), intervalSupplierTicker)
                 .map(this::generateTransactionSupplierEventFlux);
     }
 
-    private Flux<Long> generateInterval() {
+    private Flux<Supplier> generateSupplierIntervalOf(Long intervalInMillis) {
         return Flux
-                .interval(Duration.ofMillis(INTERVAL_IN_MILLIS))
+                .interval(Duration.ofMillis(intervalInMillis))
+                .flatMap(ticker -> Flux.just(generateRandomSupplier()))
                 .share();
     }
 
+    private Supplier generateRandomSupplier() {
+        return Supplier.builder()
+                .id(UUID.randomUUID().toString())
+                .userName(randomUsername())
+                .build();
+    }
+
     private SupplierTransactionEvent generateTransactionSupplierEventFlux(
-            final Tuple2<TransactionEvent, Long> tupleOfZip) {
+            final Tuple2<TransactionEvent, Supplier> tupleOfZip) {
         return SupplierTransactionEvent.builder()
-                .supplierCounter(tupleOfZip.getT2())
-                .username(randomUsername())
+                .supplierCounter(tupleOfZip.getT1().getTickerNumber())
+                .username(tupleOfZip.getT2().getUserName())
                 .price(formatFloatNumberWithCustomDecimal(
                         tupleOfZip.getT1().getTransaction().getPrice(),
                         4))
